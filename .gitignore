@@ -7,8 +7,8 @@ __pycache__/
 *.pyc
 .DS_Store
 .env
-data/raw/*
-!data/raw/.gitkeep
+!data/raw/Telco_Customer.csv
+
 models/*
 !models/.gitkeep
 results/*
