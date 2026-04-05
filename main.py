@@ -10,6 +10,7 @@ from src.models.decision_tree import (
     train_decision_tree,
     extract_decision_rules,
     evaluate_decision_tree,
+    visualize_decision_tree,
 )
 
 
@@ -57,6 +58,14 @@ def main():
 
     print("\nTraining Decision Tree...")
     dt_model = train_decision_tree(X_train, y_train)
+
+    print("\nSaving decision tree image...")
+    visualize_decision_tree(
+        dt_model,
+        feature_names=X_train.columns,
+        class_names=("No Churn", "Churn"),
+        output_path="results/decision_tree.png",
+    )
 
     print("\nExtracting decision rules...")
     extract_decision_rules(

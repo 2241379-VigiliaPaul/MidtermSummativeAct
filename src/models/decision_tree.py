@@ -1,7 +1,7 @@
 # decision_tree.py
-from sklearn.tree import DecisionTreeClassifier, export_text
-from src.evaluation import cross_validation_evaluation, save_evaluation_results
-import numpy as np
+from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
+from src.evaluation import cross_validation_evaluation
+import matplotlib.pyplot as plt
 import joblib
 import os
 
@@ -55,6 +55,32 @@ def evaluate_decision_tree(model, X, y, cv=10):
             print(f"{metric}: {value:.4f}")
             
     return results
+
+def visualize_decision_tree(
+    model,
+    feature_names,
+    class_names=("No Churn", "Churn"),
+    output_path="results/decision_tree.png",
+):
+    """
+    Save a visual diagram of the trained decision tree as a PNG.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    plt.figure(figsize=(30, 14))
+    plot_tree(
+        model,
+        feature_names=list(feature_names),
+        class_names=list(class_names),
+        filled=True,
+        rounded=True,
+        fontsize=7,
+    )
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+
+    print(f"Decision tree image saved to: {output_path}")
 
 if __name__ == "__main__":
     # Placeholder for local testing. 
