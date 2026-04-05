@@ -1,44 +1,53 @@
-# Decision Tree Model Implementation
-# Rule-based decision tree for customer churn prediction
-
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.model_selection import cross_val_score, cross_validate
-from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
+# decision_tree.py
+from sklearn.tree import DecisionTreeClassifier, export_text
+from src.evaluation import cross_validation_evaluation, save_evaluation_results
 import numpy as np
 import joblib
 import os
 
-def specificity_score(y_true, y_pred):
-    """
-    Manually compute specificity
-    Specificity = TN / (TN + FP)
-    """
-    # TODO: Implement manual specificity calculation
-    pass
-
-def train_decision_tree(X_train, y_train):
+def train_decision_tree(X_train, y_train, max_depth=5):
     """
     Train Decision Tree model
+    Setting max_depth keeps the extracted rules readable and prevents overfitting.
     """
-    # TODO: Implement model training
-    # - Initialize DecisionTreeClassifier
-    # - Fit on training data
-    # - Save model
-    pass
+    # Initialize DecisionTreeClassifier
+    model = DecisionTreeClassifier(random_state=42, max_depth=max_depth)
+    
+    # Fit on training data
+    model.fit(X_train, y_train)
+    
+    # Save model
+    os.makedirs('models', exist_ok=True)
+    joblib.dump(model, 'models/decision_tree.pkl')
+    
+    return model
+
+def extract_decision_rules(model, feature_names):
+    """
+    Extracts and prints the text representation of the decision tree rules.
+    """
+    tree_rules = export_text(model, feature_names=list(feature_names))
+    print("\n--- Extracted Decision Tree Rules ---")
+    print(tree_rules)
+    return tree_rules
 
 def evaluate_decision_tree(model, X, y, cv=10):
     """
     Evaluate Decision Tree using 10-fold cross-validation
-    Returns all required metrics
     """
-    # TODO: Implement evaluation
-    # - 10-fold CV
-    # - Compute: confusion matrix, accuracy, precision, recall, f1, specificity
-    pass
+    print(f"\nEvaluating Decision Tree with {cv}-fold CV...")
+    results = cross_validation_evaluation(model, X, y, cv=cv)
+    
+    # Print results to console
+    for metric, value in results.items():
+        if metric == 'Confusion Matrix':
+            print(f"{metric}:\n{value}")
+        else:
+            print(f"{metric}: {value:.4f}")
+            
+    return results
 
 if __name__ == "__main__":
-    # TODO: Main execution for Decision Tree
-    # Load data splits
-    # Train model
-    # Evaluate and save results
-    print("Decision Tree model training and evaluation completed")
+    # Placeholder for local testing. 
+    # In practice, this logic will be triggered by your main.py pipeline.
+    print("Decision Tree module ready.")
