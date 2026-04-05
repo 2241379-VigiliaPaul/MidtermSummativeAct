@@ -1,5 +1,4 @@
 # Ignore large files and sensitive data
-*.csv
 *.pkl
 *.h5
 *.joblib
@@ -7,7 +6,7 @@ __pycache__/
 *.pyc
 .DS_Store
 .env
-!data/raw/Telco_Customer.csv
+
 
 models/*
 !models/.gitkeep
