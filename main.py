@@ -2,10 +2,16 @@
 # Orchestrates the entire customer churn prediction pipeline
 
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 
 from src.data_preprocessing import preprocess_data
-from src.evaluation import save_evaluation_results
+from src.evaluation import (
+    save_evaluation_results,
+    evaluate_on_dataset,
+    save_test_vs_unseen_results,
+    save_confusion_matrix_heatmap,
+)
 from src.models.decision_tree import (
     train_decision_tree,
     extract_decision_rules,
@@ -19,7 +25,6 @@ def main():
 
     print("Loading data...")
     try:
-        # Use read_excel for .xlsx files
         df = pd.read_excel("data/splits/Telco_Customer.xlsx")
     except FileNotFoundError:
         print("Error: Could not find dataset at data/splits/Telco_Customer.xlsx")
@@ -28,7 +33,6 @@ def main():
         print(f"Error while loading dataset: {e}")
         return
 
-    # Preprocess so model gets numeric inputs
     try:
         df = preprocess_data(df)
     except Exception as e:
@@ -86,11 +90,36 @@ def main():
     print("\nEvaluating Decision Tree with 10-fold CV...")
     dt_metrics = evaluate_decision_tree(dt_model, X_train, y_train, cv=10)
 
-    # Save evaluation output
     save_evaluation_results(
         dt_metrics,
         model_name="Decision Tree",
         filepath="results/decision_tree_evaluation.txt",
+    )
+
+    print("\nEvaluating Testing Set (20%) and Unseen Data (10%)...")
+    test_metrics = evaluate_on_dataset(dt_model, X_test, y_test)
+    unseen_metrics = evaluate_on_dataset(dt_model, X_unseen, y_unseen)
+
+    save_test_vs_unseen_results(
+        test_metrics=test_metrics,
+        unseen_metrics=unseen_metrics,
+        filepath="results/decision_tree_test20_vs_unseen10.csv",
+    )
+
+    y_test_pred = dt_model.predict(X_test)
+    y_unseen_pred = dt_model.predict(X_unseen)
+
+    # Combine 20% test + 10% unseen into one overall confusion matrix
+    y_all_true = np.concatenate([y_test.to_numpy(), y_unseen.to_numpy()])
+    y_all_pred = np.concatenate([y_test_pred, y_unseen_pred])
+
+    save_confusion_matrix_heatmap(
+        y_true=y_all_true,
+        y_pred=y_all_pred,
+        filepath="results/confusion_matrix_whole.png",
+        title="Confusion Matrix: Overall Holdout Data (20% Test + 10% Unseen)",
+        labels=("No Churn", "Churn"),
+        cmap="Oranges",
     )
 
     print("\nPipeline completed successfully")

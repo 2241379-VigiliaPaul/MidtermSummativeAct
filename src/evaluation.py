@@ -4,6 +4,8 @@ from sklearn.model_selection import cross_val_predict, cross_validate, Stratifie
 import numpy as np
 import pandas as pd
 import os
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 def specificity_score(y_true, y_pred):
     """
@@ -82,6 +84,148 @@ def save_evaluation_results(results, model_name, filepath):
                 f.write(f"{metric_name}: {value:.4f}\n")
             else:
                 f.write(f"{metric_name}: {value}\n")
+
+def evaluate_on_dataset(model, X, y):
+    y_pred = model.predict(X)
+    try:
+        y_prob = model.predict_proba(X)[:, 1]
+    except AttributeError:
+        y_prob = None
+    return compute_all_metrics(y, y_pred, y_prob)
+
+
+def save_holdout_comparison(metrics_20, metrics_10, filepath):
+    """
+    Save a side by side metrics table:
+    Metric | Training Set 20% | Unseen Data (10%)
+    """
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+    metric_order = [
+        "Accuracy",
+        "Precision",
+        "Recall",
+        "F1-score",
+        "Specificity",
+        "ROC-AUC",
+    ]
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write("Metric,Training Set 20%,Unseen Data (10%)\n")
+        for m in metric_order:
+            left = metrics_20.get(m, "N/A")
+            right = metrics_10.get(m, "N/A")
+
+            if isinstance(left, (float, np.floating)):
+                left = f"{left:.4f}"
+            if isinstance(right, (float, np.floating)):
+                right = f"{right:.4f}"
+
+            f.write(f"{m},{left},{right}\n")
+
+def save_test_vs_unseen_results(test_metrics, unseen_metrics, filepath):
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+    metric_order = ["Accuracy", "Precision", "Recall", "F1-score", "Specificity", "ROC-AUC"]
+
+    with open(filepath, "w", encoding="utf-8") as f:
+        f.write("Metric,Testing Set (20%),Unseen Data (10%)\n")
+        for metric in metric_order:
+            left = test_metrics.get(metric, "N/A")
+            right = unseen_metrics.get(metric, "N/A")
+
+            if isinstance(left, (float, np.floating)):
+                left = f"{left:.4f}"
+            if isinstance(right, (float, np.floating)):
+                right = f"{right:.4f}"
+
+            f.write(f"{metric},{left},{right}\n")
+
+def save_confusion_matrix_pair_heatmap(
+    y_test_true,
+    y_test_pred,
+    y_unseen_true,
+    y_unseen_pred,
+    filepath="results/confusion_matrix_pair.png",
+    labels=("No Churn", "Churn"),
+):
+    """
+    Save side-by-side confusion matrix heatmaps for:
+    - Testing Set (20%)
+    - Unseen Data (10%)
+    """
+    cm_test = confusion_matrix(y_test_true, y_test_pred)
+    cm_unseen = confusion_matrix(y_unseen_true, y_unseen_pred)
+
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+    sns.heatmap(
+        cm_test,
+        annot=True,
+        fmt="d",
+        cmap="Blues",
+        cbar=False,
+        xticklabels=labels,
+        yticklabels=labels,
+        ax=axes[0],
+    )
+    axes[0].set_title("Testing Set (20%)")
+    axes[0].set_xlabel("Predicted")
+    axes[0].set_ylabel("Actual")
+
+    sns.heatmap(
+        cm_unseen,
+        annot=True,
+        fmt="d",
+        cmap="Greens",
+        cbar=False,
+        xticklabels=labels,
+        yticklabels=labels,
+        ax=axes[1],
+    )
+    axes[1].set_title("Unseen Data (10%)")
+    axes[1].set_xlabel("Predicted")
+    axes[1].set_ylabel("Actual")
+
+    plt.suptitle("Decision Tree Confusion Matrices", fontsize=12)
+    plt.tight_layout()
+    plt.savefig(filepath, dpi=300)
+    plt.close()
+
+    print(f"Confusion matrix pair heatmap saved to: {filepath}")
+
+def save_confusion_matrix_heatmap(
+    y_true,
+    y_pred,
+    filepath="results/confusion_matrix_whole.png",
+    title="Confusion Matrix: Testing (20%) + Unseen (10%)",
+    labels=("No Churn", "Churn"),
+    cmap="Oranges",
+):
+    cm = confusion_matrix(y_true, y_pred)
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt="d",
+        cmap=cmap,
+        cbar=True,  # color measure on the side
+        cbar_kws={"label": "Number of Samples"},
+        xticklabels=labels,
+        yticklabels=labels,
+    )
+    plt.title(title)
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.tight_layout()
+    plt.savefig(filepath, dpi=300)
+    plt.close()
+
+    print(f"Whole confusion matrix heatmap saved to: {filepath}")
 
 if __name__ == "__main__":
     print("Evaluation utilities loaded")
