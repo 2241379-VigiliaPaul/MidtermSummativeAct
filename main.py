@@ -1,32 +1,78 @@
 # Main Script
 # Orchestrates the entire customer churn prediction pipeline
 
-import os
-import sys
-sys.path.append('src')
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
-# Import modules
-# from data_preprocessing import *
-# from models.decision_tree import *
-# from models.naive_bayes import *
-# from models.svm import *
-# from models.chosen_algorithm import *
-# from evaluation import *
-# from analysis import *
+from src.data_preprocessing import preprocess_data
+from src.evaluation import save_evaluation_results
+from src.models.decision_tree import (
+    train_decision_tree,
+    extract_decision_rules,
+    evaluate_decision_tree,
+)
+
 
 def main():
-    """
-    Main pipeline execution
-    """
     print("Starting Customer Churn Prediction Pipeline")
-    
-    # TODO: Implement main pipeline
-    # 1. Data preprocessing
-    # 2. Train all models
-    # 3. Evaluate all models
-    # 4. Analyze results
-    
-    print("Pipeline completed successfully")
+
+    print("Loading data...")
+    try:
+        # Use read_excel for .xlsx files
+        df = pd.read_excel("data/splits/Telco_Customer.xlsx")
+    except FileNotFoundError:
+        print("Error: Could not find dataset at data/splits/Telco_Customer.xlsx")
+        return
+    except Exception as e:
+        print(f"Error while loading dataset: {e}")
+        return
+
+    # Preprocess so model gets numeric inputs
+    try:
+        df = preprocess_data(df)
+    except Exception as e:
+        print(f"Error during preprocessing: {e}")
+        return
+
+    if "Churn" not in df.columns:
+        print("Error: Target column 'Churn' not found after preprocessing.")
+        return
+
+    X = df.drop("Churn", axis=1)
+    y = df["Churn"]
+
+    print("Splitting data according to requirements...")
+    X_temp, X_unseen, y_temp, y_unseen = train_test_split(
+        X, y, test_size=0.10, random_state=42, stratify=y
+    )
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X_temp, y_temp, test_size=0.20, random_state=42, stratify=y_temp
+    )
+
+    print(
+        f"Data ready. Training samples: {X_train.shape}, "
+        f"Testing samples: {X_test.shape}, Unseen samples: {X_unseen.shape}"
+    )
+
+    print("\nTraining Decision Tree...")
+    dt_model = train_decision_tree(X_train, y_train)
+
+    print("\nExtracting decision rules...")
+    extract_decision_rules(dt_model, feature_names=X_train.columns)
+
+    print("\nEvaluating Decision Tree with 10-fold CV...")
+    dt_metrics = evaluate_decision_tree(dt_model, X_train, y_train, cv=10)
+
+    # Save evaluation output
+    save_evaluation_results(
+        dt_metrics,
+        model_name="Decision Tree",
+        filepath="results/decision_tree_evaluation.txt",
+    )
+
+    print("\nPipeline completed successfully")
+
 
 if __name__ == "__main__":
     main()
