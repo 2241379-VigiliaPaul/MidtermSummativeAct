@@ -4,6 +4,7 @@ from src.evaluation import cross_validation_evaluation
 import matplotlib.pyplot as plt
 import joblib
 import os
+import numpy as np
 
 def train_decision_tree(X_train, y_train, max_depth=5):
     """
@@ -47,12 +48,14 @@ def evaluate_decision_tree(model, X, y, cv=10):
     print(f"\nEvaluating Decision Tree with {cv}-fold CV...")
     results = cross_validation_evaluation(model, X, y, cv=cv)
     
-    # Print results to console
+    # Print results to console with safe formatting by value type
     for metric, value in results.items():
-        if metric == 'Confusion Matrix':
+        if metric == "Confusion Matrix":
             print(f"{metric}:\n{value}")
-        else:
+        elif isinstance(value, (int, float, np.floating)):
             print(f"{metric}: {value:.4f}")
+        else:
+            print(f"{metric}: {value}")
             
     return results
 
@@ -60,27 +63,35 @@ def visualize_decision_tree(
     model,
     feature_names,
     class_names=("No Churn", "Churn"),
-    output_path="results/decision_tree.png",
+    output_path="results/decision_tree_simple.png",
+    display_depth=3,
 ):
     """
-    Save a visual diagram of the trained decision tree as a PNG.
+    Save a simplified visual diagram of the trained decision tree as a PNG.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    plt.figure(figsize=(30, 14))
+    # Shorten very long engineered column names for readability in the graph
+    short_names = [name.split("(")[0].strip() for name in feature_names]
+
+    plt.figure(figsize=(24, 12))
     plot_tree(
         model,
-        feature_names=list(feature_names),
+        feature_names=short_names,
         class_names=list(class_names),
         filled=True,
         rounded=True,
-        fontsize=7,
+        max_depth=display_depth,
+        impurity=False,
+        proportion=True,
+        precision=2,
+        fontsize=9,
     )
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()
 
-    print(f"Decision tree image saved to: {output_path}")
+    print(f"Simplified decision tree image saved to: {output_path}")
 
 if __name__ == "__main__":
     # Placeholder for local testing. 

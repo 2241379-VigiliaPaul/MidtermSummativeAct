@@ -57,14 +57,23 @@ def main():
     )
 
     print("\nTraining Decision Tree...")
-    dt_model = train_decision_tree(X_train, y_train)
+    dt_model = train_decision_tree(X_train, y_train, max_depth=4)
 
-    print("\nSaving decision tree image...")
+    print("\nSaving decision tree images...")
     visualize_decision_tree(
         dt_model,
         feature_names=X_train.columns,
         class_names=("No Churn", "Churn"),
-        output_path="results/decision_tree.png",
+        output_path="results/decision_tree_simple.png",
+        display_depth=3,
+    )
+
+    visualize_decision_tree(
+        dt_model,
+        feature_names=X_train.columns,
+        class_names=("No Churn", "Churn"),
+        output_path="results/decision_tree_full.png",
+        display_depth=10,
     )
 
     print("\nExtracting decision rules...")
