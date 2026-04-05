@@ -59,7 +59,11 @@ def main():
     dt_model = train_decision_tree(X_train, y_train)
 
     print("\nExtracting decision rules...")
-    extract_decision_rules(dt_model, feature_names=X_train.columns)
+    extract_decision_rules(
+        dt_model,
+        feature_names=X_train.columns,
+        output_path="results/decision_tree_rules.txt",
+    )
 
     print("\nEvaluating Decision Tree with 10-fold CV...")
     dt_metrics = evaluate_decision_tree(dt_model, X_train, y_train, cv=10)

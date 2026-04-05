@@ -22,13 +22,22 @@ def train_decision_tree(X_train, y_train, max_depth=5):
     
     return model
 
-def extract_decision_rules(model, feature_names):
+def extract_decision_rules(model, feature_names, output_path=None):
     """
     Extracts and prints the text representation of the decision tree rules.
+    Optionally saves rules to a text file.
     """
     tree_rules = export_text(model, feature_names=list(feature_names))
     print("\n--- Extracted Decision Tree Rules ---")
     print(tree_rules)
+
+    if output_path:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write("--- Extracted Decision Tree Rules ---\n")
+            f.write(tree_rules)
+        print(f"Rules saved to: {output_path}")
+
     return tree_rules
 
 def evaluate_decision_tree(model, X, y, cv=10):
