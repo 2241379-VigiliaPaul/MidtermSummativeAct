@@ -1,0 +1,95 @@
+--- Extracted Decision Tree Rules ---
+|--- Contract ( 1yr = 1, 2 yr = 2 , month to month = 3 <= 2.50
+|   |--- OnlineSecurity ( 0 internet serv. =2) <= 0.50
+|   |   |--- Contract ( 1yr = 1, 2 yr = 2 , month to month = 3 <= 1.50
+|   |   |   |--- MonthlyCharges <= 99.92
+|   |   |   |   |--- MonthlyCharges <= 24.48
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- MonthlyCharges >  24.48
+|   |   |   |   |   |--- class: 0
+|   |   |   |--- MonthlyCharges >  99.92
+|   |   |   |   |--- MonthlyCharges <= 100.10
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- MonthlyCharges >  100.10
+|   |   |   |   |   |--- class: 0
+|   |   |--- Contract ( 1yr = 1, 2 yr = 2 , month to month = 3 >  1.50
+|   |   |   |--- TotalCharges <= 7304.98
+|   |   |   |   |--- TechSupport ( 0 internet serv. =2) <= 0.50
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- TechSupport ( 0 internet serv. =2) >  0.50
+|   |   |   |   |   |--- class: 0
+|   |   |   |--- TotalCharges >  7304.98
+|   |   |   |   |--- TotalCharges <= 7414.05
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- TotalCharges >  7414.05
+|   |   |   |   |   |--- class: 0
+|   |--- OnlineSecurity ( 0 internet serv. =2) >  0.50
+|   |   |--- MonthlyCharges <= 103.47
+|   |   |   |--- PaymentMethod (eCheck = 0, mCheck = 1, bTransfer =2, card = 3) <= 0.50
+|   |   |   |   |--- tenure <= 51.50
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- tenure >  51.50
+|   |   |   |   |   |--- class: 0
+|   |   |   |--- PaymentMethod (eCheck = 0, mCheck = 1, bTransfer =2, card = 3) >  0.50
+|   |   |   |   |--- MonthlyCharges <= 70.00
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- MonthlyCharges >  70.00
+|   |   |   |   |   |--- class: 0
+|   |   |--- MonthlyCharges >  103.47
+|   |   |   |--- TotalCharges <= 6269.12
+|   |   |   |   |--- MonthlyCharges <= 105.55
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- MonthlyCharges >  105.55
+|   |   |   |   |   |--- class: 0
+|   |   |   |--- TotalCharges >  6269.12
+|   |   |   |   |--- tenure <= 70.50
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- tenure >  70.50
+|   |   |   |   |   |--- class: 0
+|--- Contract ( 1yr = 1, 2 yr = 2 , month to month = 3 >  2.50
+|   |--- InternetService ( N = 0, DSL = 1, FBR OPT. = 2 <= 1.50
+|   |   |--- tenure <= 5.50
+|   |   |   |--- TechSupport ( 0 internet serv. =2) <= 0.50
+|   |   |   |   |--- PhoneService (Y=1, N=0) <= 0.50
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- PhoneService (Y=1, N=0) >  0.50
+|   |   |   |   |   |--- class: 0
+|   |   |   |--- TechSupport ( 0 internet serv. =2) >  0.50
+|   |   |   |   |--- tenure <= 1.50
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- tenure >  1.50
+|   |   |   |   |   |--- class: 0
+|   |   |--- tenure >  5.50
+|   |   |   |--- OnlineBackup ( 0 internet serv. =2) <= 0.50
+|   |   |   |   |--- TotalCharges <= 1056.35
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- TotalCharges >  1056.35
+|   |   |   |   |   |--- class: 0
+|   |   |   |--- OnlineBackup ( 0 internet serv. =2) >  0.50
+|   |   |   |   |--- TechSupport ( 0 internet serv. =2) <= 0.50
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- TechSupport ( 0 internet serv. =2) >  0.50
+|   |   |   |   |   |--- class: 0
+|   |--- InternetService ( N = 0, DSL = 1, FBR OPT. = 2 >  1.50
+|   |   |--- tenure <= 10.50
+|   |   |   |--- TotalCharges <= 120.00
+|   |   |   |   |--- TechSupport ( 0 internet serv. =2) <= 0.50
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- TechSupport ( 0 internet serv. =2) >  0.50
+|   |   |   |   |   |--- class: 0
+|   |   |   |--- TotalCharges >  120.00
+|   |   |   |   |--- MonthlyCharges <= 80.58
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- MonthlyCharges >  80.58
+|   |   |   |   |   |--- class: 1
+|   |   |--- tenure >  10.50
+|   |   |   |--- PaymentMethod (eCheck = 0, mCheck = 1, bTransfer =2, card = 3) <= 0.50
+|   |   |   |   |--- TotalCharges <= 3069.88
+|   |   |   |   |   |--- class: 1
+|   |   |   |   |--- TotalCharges >  3069.88
+|   |   |   |   |   |--- class: 0
+|   |   |   |--- PaymentMethod (eCheck = 0, mCheck = 1, bTransfer =2, card = 3) >  0.50
+|   |   |   |   |--- tenure <= 51.50
+|   |   |   |   |   |--- class: 0
+|   |   |   |   |--- tenure >  51.50
+|   |   |   |   |   |--- class: 0

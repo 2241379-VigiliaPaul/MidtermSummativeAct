@@ -1,14 +1,2 @@
 # Ignore large files and sensitive data
-*.pkl
-*.h5
-*.joblib
-__pycache__/
-*.pyc
-.DS_Store
 .env
-
-
-models/*
-!models/.gitkeep
-results/*
-!results/.gitkeep
