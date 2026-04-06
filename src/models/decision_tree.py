@@ -1,3 +1,4 @@
+# Import necessary libraries for decision tree modeling and evaluation
 from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
 from sklearn.model_selection import train_test_split, cross_val_predict
 from sklearn.metrics import (confusion_matrix, accuracy_score, precision_score,
@@ -7,8 +8,8 @@ import joblib
 import os
 import numpy as np
 
-
 def train_decision_tree(X_train, y_train, max_depth=5):
+    # Train Decision Tree classifier with limited depth to prevent overfitting and enable rule extraction
     model = DecisionTreeClassifier(random_state=42, max_depth=max_depth)
     model.fit(X_train, y_train)
     
@@ -17,8 +18,8 @@ def train_decision_tree(X_train, y_train, max_depth=5):
     
     return model
 
-
 def compute_metrics(y_true, y_pred, y_prob=None):
+    # Calculate comprehensive classification metrics: confusion matrix, accuracy, precision, recall, F1, specificity, ROC-AUC
     cm = confusion_matrix(y_true, y_pred)
     tn, fp, fn, tp = cm.ravel()
     
@@ -38,8 +39,8 @@ def compute_metrics(y_true, y_pred, y_prob=None):
     
     return metrics
 
-
 def extract_decision_rules(model, feature_names, output_path=None):
+    # Convert trained decision tree to human-readable IF-THEN rules for business interpretation
     tree_rules = export_text(model, feature_names=list(feature_names))
     print("\n--- Extracted Decision Tree Rules ---")
     print(tree_rules)
@@ -52,6 +53,7 @@ def extract_decision_rules(model, feature_names, output_path=None):
     return tree_rules
 
 def evaluate_decision_tree(model, X, y, cv=10):
+    # Evaluate model using stratified cross-validation to maintain class balance across folds
     import sys
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from evaluation import cross_validation_evaluation
@@ -69,7 +71,7 @@ def evaluate_decision_tree(model, X, y, cv=10):
     return results
 
 def visualize_decision_tree(model, feature_names, class_names=("No Churn", "Churn"), output_path="results/decision_tree_simple.png", display_depth=3):
-    # Create and save simplified visual diagram of decision tree
+    # Generate visual diagram of decision tree structure for presentation and interpretation
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     short_names = [name.split("(")[0].strip() for name in feature_names]
     plt.figure(figsize=(24, 12))
@@ -79,10 +81,12 @@ def visualize_decision_tree(model, feature_names, class_names=("No Churn", "Chur
     plt.close()
     print(f"Simplified decision tree image saved to: {output_path}")
 
+# Main execution pipeline for Decision Tree model
 if __name__ == "__main__":
-    # Main execution pipeline for Decision Tree model
+    # Import necessary libraries for data loading and manipulation
     import sys, pandas as pd
     from sklearn.model_selection import train_test_split
+    # Add parent directory to path for importing evaluation module
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from evaluation import compute_all_metrics, specificity_score
     

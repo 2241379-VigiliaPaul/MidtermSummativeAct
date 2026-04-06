@@ -1,3 +1,4 @@
+# Import necessary libraries for Naive Bayes modeling and data manipulation
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split, cross_val_score
@@ -10,7 +11,9 @@ import joblib
 import os
 
 
+# Define function to load and prepare training data
 def load_and_prepare_data(file_path='data/processed/Cleaned_Telco_Customer.csv'):
+    # Load cleaned dataset and split into train (80%), test (20%), and unseen validation (10%) sets
     df = pd.read_csv(file_path)
     df['TotalCharges'] = df['TotalCharges'].fillna(df['TotalCharges'].median())
     X = df.drop('Churn', axis=1)
@@ -20,7 +23,9 @@ def load_and_prepare_data(file_path='data/processed/Cleaned_Telco_Customer.csv')
     return X_train, y_train, X_test, y_test, X_unseen, y_unseen
 
 
+# Define function to train Naive Bayes classifier
 def train_naive_bayes(X_train, y_train):
+    # Train Gaussian Naive Bayes classifier - fast probabilistic model assuming feature independence
     model = GaussianNB()
     model.fit(X_train, y_train)
     os.makedirs('models', exist_ok=True)
@@ -28,10 +33,11 @@ def train_naive_bayes(X_train, y_train):
     return model
 
 
+# Define function to compute classification metrics
 def compute_metrics(y_true, y_pred, y_prob=None):
+    # Calculate comprehensive classification metrics including confusion matrix components and ROC-AUC
     cm = confusion_matrix(y_true, y_pred)
     tn, fp, fn, tp = cm.ravel()
-    
     metrics = {
         "Confusion Matrix": cm,
         "Accuracy": accuracy_score(y_true, y_pred),
@@ -40,16 +46,16 @@ def compute_metrics(y_true, y_pred, y_prob=None):
         "F1-score": f1_score(y_true, y_pred, zero_division=0),
         "Specificity": tn / (tn + fp) if (tn + fp) > 0 else 0.0,
     }
-    
     if y_prob is not None:
         metrics["ROC-AUC"] = roc_auc_score(y_true, y_prob)
     else:
         metrics["ROC-AUC"] = 0.0
-    
     return metrics
 
 
+# Define function to evaluate Naive Bayes model
 def evaluate_naive_bayes(model, X, y, cv=10):
+    # Evaluate Naive Bayes model and return all performance metrics for given dataset
     y_pred = model.predict(X)
     y_prob = model.predict_proba(X)[:, 1]
     return compute_metrics(y, y_pred, y_prob)
@@ -57,7 +63,9 @@ def evaluate_naive_bayes(model, X, y, cv=10):
 
 if __name__ == "__main__":
     # Main execution pipeline for Naive Bayes model training and evaluation
+    # Load and prepare data
     X_train, y_train, X_test, y_test, X_unseen, y_unseen = load_and_prepare_data()
+    # Train Naive Bayes model
     model = train_naive_bayes(X_train, y_train)
     test_results = compute_metrics(y_test, model.predict(X_test), model.predict_proba(X_test)[:, 1])
     unseen_results = compute_metrics(y_unseen, model.predict(X_unseen), model.predict_proba(X_unseen)[:, 1])

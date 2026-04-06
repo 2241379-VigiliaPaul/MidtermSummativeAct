@@ -1,3 +1,4 @@
+# Import necessary libraries for Random Forest modeling and evaluation
 import pandas as pd
 import numpy as np
 import os
@@ -7,16 +8,18 @@ from sklearn.metrics import (confusion_matrix, accuracy_score, precision_score,
                              recall_score, f1_score, roc_auc_score)
 import joblib
 
-
+# Define function to train Random Forest classifier
 def train_chosen_algorithm(X_train, y_train, n_estimators=100, random_state=42):
+    # Train Random Forest ensemble classifier with 100 trees for robust prediction averaging
     model = RandomForestClassifier(n_estimators=n_estimators, random_state=random_state)
     model.fit(X_train, y_train)
     os.makedirs('models', exist_ok=True)
     joblib.dump(model, 'models/random_forest_model.pkl')
     return model
 
-
+# Define function to compute classification metrics
 def compute_metrics(y_true, y_pred, y_prob=None):
+    # Calculate all classification metrics including specificity (true negative rate) and ROC-AUC
     cm = confusion_matrix(y_true, y_pred)
     tn, fp, fn, tp = cm.ravel()
     
@@ -36,8 +39,9 @@ def compute_metrics(y_true, y_pred, y_prob=None):
     
     return metrics
 
-
+# Define function to evaluate Random Forest using cross-validation
 def evaluate_chosen_algorithm(model, X, y, cv=10):
+    # Perform stratified cross-validation to maintain class distribution and return mean metrics
     from sklearn.model_selection import StratifiedKFold
     
     print(f"\nEvaluating Random Forest with {cv}-fold CV...")
@@ -60,7 +64,9 @@ def evaluate_chosen_algorithm(model, X, y, cv=10):
 
 if __name__ == "__main__":
     # Main execution pipeline for Random Forest model training and evaluation
+    # Load dataset from CSV file
     df = pd.read_csv('data/processed/Cleaned_Telco_Customer.csv')
+    # Split dataset into features (X) and target variable (y)
     X = df.drop('Churn', axis=1)
     y = df['Churn']
 

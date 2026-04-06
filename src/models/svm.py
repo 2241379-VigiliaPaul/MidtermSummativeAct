@@ -1,3 +1,4 @@
+# Import necessary libraries for SVM modeling and evaluation
 from sklearn.svm import SVC
 from sklearn.model_selection import train_test_split, cross_val_predict
 from sklearn.metrics import (confusion_matrix, accuracy_score, precision_score,
@@ -8,8 +9,8 @@ import joblib
 import os
 import pandas as pd
 
-
 def load_cleaned_data(filepath="data/processed/Cleaned_Telco_Customer.csv"):
+    # Load preprocessed dataset and validate that target column 'Churn' exists
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Cleaned data file not found: {filepath}")
     
@@ -21,16 +22,16 @@ def load_cleaned_data(filepath="data/processed/Cleaned_Telco_Customer.csv"):
     y = df['Churn']
     return X, y
 
-
 def train_svm(X_train, y_train, random_state=42):
+    # Train Support Vector Machine classifier with class balancing for imbalanced churn dataset
     model = SVC(random_state=random_state, probability=True, class_weight='balanced')
     model.fit(X_train, y_train)
     os.makedirs('models', exist_ok=True)
     joblib.dump(model, 'models/svm.pkl')
     return model
 
-
 def compute_metrics(y_true, y_pred, y_prob=None):
+    # Compute classification metrics including specificity (TN/(TN+FP)) and ROC-AUC score
     cm = confusion_matrix(y_true, y_pred)
     tn, fp, fn, tp = cm.ravel()
     
@@ -50,8 +51,8 @@ def compute_metrics(y_true, y_pred, y_prob=None):
     
     return metrics
 
-
 def evaluate_svm(model, X, y, cv=10):
+    # Evaluate SVM using stratified cross-validation to ensure balanced class representation in each fold
     import sys
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     from evaluation import cross_validation_evaluation
